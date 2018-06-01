@@ -29,7 +29,8 @@ object FirstExample {
   def examples: ConnectionIO[String] = {
     // Create and populate
     for {
-      _ <- DAO.create
+      // MYSQL에는 오류 발생
+      //_ <- DAO.create
       ns <- DAO.insertSuppliers(suppliers)
       nc <- DAO.insertCoffees(coffees)
       _  <- putStrLn(s"Inserted $ns suppliers and $nc coffees.")
@@ -83,11 +84,7 @@ object FirstExample {
 
   object Queries {
     def coffeesLessThan(price: Double): Query0[(String, String)] =
-      sql"""
-           |SELECT cof_name, sup_name
-           |        FROM coffees JOIN suppliers ON coffees.sup_id = suppliers.sup_id
-           |        WHERE price < $price
-        """.query[(String, String)]
+      sql"SELECT cof_name, sup_name  FROM coffees JOIN suppliers ON coffees.sup_id = suppliers.sup_id  WHERE price < $price".query[(String, String)]
 
     val insertSupplier: Update[Supplier] =
       Update[Supplier]("INSERT INTO suppliers VALUES (?, ?, ?, ?, ?, ?)", None)
@@ -115,8 +112,7 @@ object FirstExample {
           sales    INT     NOT NULL,
           total    INT     NOT NULL
         );
-        ALTER TABLE coffees
-        ADD CONSTRAINT coffees_suppliers_fk FOREIGN KEY (sup_id) REFERENCES suppliers(sup_id);
+        ALTER TABLE coffees ADD CONSTRAINT coffees_suppliers_fk FOREIGN KEY (sup_id) REFERENCES suppliers(sup_id);
       """.update
   }
 
